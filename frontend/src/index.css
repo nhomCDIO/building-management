@@ -1,0 +1,73 @@
+/* src/index.css */
+body {
+    margin: 0;
+    /* Dùng đường dẫn / thay vì ./ nếu ảnh ở public, hoặc giữ nguyên nếu ở src/assets */
+    background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('./assets/nen_nen.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Ngăn scroll toàn trang */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.glass-sidebar {
+    background: rgba(20, 20, 20, 0.7) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.room-item {
+    background: white;
+    padding: 8px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.room-item:hover {
+    background: #8b5e5e;
+    color: white;
+}
+/* Trong file CSS của bạn */
+.roomContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Chia đúng 5 cột */
+    gap: 5px;                              /* Khoảng cách giữa các nút */
+    padding: 10px;
+    max-width: 250px;                      /* Giới hạn chiều rộng tổng để nút nhỏ lại */
+}
+
+.room-circle-small {
+    width: 35px;                           /* Kích thước nhỏ lại */
+    height: 35px;
+    border-radius: 50%;                    /* Hình tròn */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    font-size: 11px;                       /* Chữ nhỏ để vừa ô */
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.room-circle-small:hover {
+    background-color: #e0e0e0;
+}
+
+/* Class khi được chọn (tick) */
+.room-circle-small.selected {
+    background-color: #a04e4e; 
+    color: white;
+}
