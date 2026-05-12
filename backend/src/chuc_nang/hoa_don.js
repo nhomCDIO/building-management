@@ -41,6 +41,10 @@ router.get('/danh-sach', async (req, res) => {
                 h.id,
                 h.trang_thai,
                 h.so_tien,
+                h.tien_dien,
+                h.tien_nuoc,
+                h.phu_phi,
+                h.han_thanh_toan,
                 h.noi_dung,
                 h.thoi_gian_thanh_toan
             FROM phong p
@@ -57,6 +61,10 @@ router.get('/danh-sach', async (req, res) => {
                     ma_phong: item.ma_phong,
                     trang_thai: item.trang_thai,
                     so_tien: item.so_tien,
+                    tien_dien: item.tien_dien || 0,
+                    tien_nuoc: item.tien_nuoc || 0,
+                    phu_phi: item.phu_phi || 0,
+                    han_thanh_toan: item.han_thanh_toan,
                     noi_dung: item.noi_dung,
                     thoi_gian_thanh_toan: item.thoi_gian_thanh_toan,
                     la_mac_dinh: false
@@ -68,6 +76,10 @@ router.get('/danh-sach', async (req, res) => {
                     ma_phong: item.ma_phong,
                     trang_thai: 'DaThanhToan',
                     so_tien: 0,
+                    tien_dien: 0,
+                    tien_nuoc: 0,
+                    phu_phi: 0,
+                    han_thanh_toan: null,
                     noi_dung: 'Hệ thống mặc định các tháng trước là đã thanh toán.',
                     thoi_gian_thanh_toan: null,
                     la_mac_dinh: true
@@ -78,6 +90,10 @@ router.get('/danh-sach', async (req, res) => {
                 ma_phong: item.ma_phong,
                 trang_thai: 'ChuaThanhToan',
                 so_tien: 0,
+                tien_dien: 0,
+                tien_nuoc: 0,
+                phu_phi: 0,
+                han_thanh_toan: null,
                 noi_dung: null,
                 thoi_gian_thanh_toan: null,
                 la_mac_dinh: false
@@ -115,7 +131,7 @@ router.get('/chi-tiet/:ma_phong', async (req, res) => {
         }
 
         const [rows] = await db.query(
-            `SELECT id, ma_phong, thang, nam, trang_thai, so_tien, noi_dung, thoi_gian_thanh_toan
+            `SELECT id, ma_phong, thang, nam, trang_thai, so_tien, tien_dien, tien_nuoc, phu_phi, han_thanh_toan, noi_dung, thoi_gian_thanh_toan
              FROM hoa_don
              WHERE ma_phong = ? AND thang = ? AND nam = ?
              LIMIT 1`,
@@ -136,6 +152,10 @@ router.get('/chi-tiet/:ma_phong', async (req, res) => {
                 nam,
                 trang_thai: 'DaThanhToan',
                 so_tien: 0,
+                tien_dien: 0,
+                tien_nuoc: 0,
+                phu_phi: 0,
+                han_thanh_toan: null,
                 noi_dung: 'Hệ thống mặc định các tháng trước là đã thanh toán.',
                 thoi_gian_thanh_toan: null,
                 la_mac_dinh: true
@@ -148,6 +168,10 @@ router.get('/chi-tiet/:ma_phong', async (req, res) => {
             nam,
             trang_thai: 'ChuaThanhToan',
             so_tien: 0,
+            tien_dien: 0,
+            tien_nuoc: 0,
+            phu_phi: 0,
+            han_thanh_toan: null,
             noi_dung: null,
             thoi_gian_thanh_toan: null,
             la_mac_dinh: false
@@ -215,4 +239,33 @@ router.post('/thanh-toan', async (req, res) => {
     }
 });
 
+// =====================================================
+// 4. ADMIN TẠO/CẬP NHẬT HÓA ĐƠN HÀNG THÁNG
+// =====================================================
+router.post('/cap-nhat-thong-so', async (req, res) => {
+    try {
+        const { ma_phong, thang, nam, tien_dien, tien_nuoc, phu_phi, han_thanh_toan, noi_dung } = req.body;
+
+        // Tính tổng tiền tự động
+        const tong_tien = Number(tien_dien || 0) + Number(tien_nuoc || 0) + Number(phu_phi || 0);
+
+        await db.query(
+            `INSERT INTO hoa_don (ma_phong, thang, nam, trang_thai, so_tien, tien_dien, tien_nuoc, phu_phi, han_thanh_toan, noi_dung)
+             VALUES (?, ?, ?, 'ChuaThanhToan', ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+                so_tien = VALUES(so_tien),
+                tien_dien = VALUES(tien_dien),
+                tien_nuoc = VALUES(tien_nuoc),
+                phu_phi = VALUES(phu_phi),
+                han_thanh_toan = VALUES(han_thanh_toan),
+                noi_dung = VALUES(noi_dung)`,
+            [ma_phong, thang, nam, tong_tien, tien_dien, tien_nuoc, phu_phi, han_thanh_toan, noi_dung]
+        );
+
+        return res.status(200).json({ message: 'Cập nhật chỉ số hóa đơn thành công!' });
+    } catch (error) {
+        console.error('Lỗi Admin cập nhật hóa đơn:', error);
+        return res.status(500).json({ message: 'Lỗi server khi cập nhật hóa đơn!' });
+    }
+});
 module.exports = router;

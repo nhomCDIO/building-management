@@ -36,8 +36,8 @@ const routeHoaDon = require('./src/chuc_nang/hoa_don');
 app.use('/api/hoa-don', routeHoaDon);
 
 // bảo trì
-const routeBaoTri = require('./src/chuc_nang/bao_tri');
-app.use('/api/bao-tri', routeBaoTri);
+const baoTriRouter = require('./routes/bao_tri'); // Đường dẫn đến file bao_tri.js của bạn
+app.use('/api/bao-tri', baoTriRouter);
 
 // nhắn tin
 const routeNhanTin = require('./src/chuc_nang/nhan_tin');

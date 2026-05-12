@@ -1,0 +1,190 @@
+/* 1. HIỆU ỨNG CUỘN MƯỢT TOÀN TRANG */
+html {
+    scroll-behavior: smooth; /* Giúp khi bấm "Tính năng" trang sẽ lướt xuống từ từ */
+}
+
+/* 2. ĐỊNH DẠNG HEADER (DÍNH Ở TRÊN CÙNG) */
+.header-fixed {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* 3. HIỆU ỨNG CHO NÚT "VỀ CHÚNG TÔI" & "TÍNH NĂNG" */
+.nav-item {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+    position: relative;
+    padding: 5px 0;
+    transition: all 0.3s ease;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Đường gạch chân chạy ra khi đưa chuột vào */
+.nav-item::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #2b579a;
+    transition: width 0.3s ease;
+}
+
+.nav-item:hover {
+    color: #2b579a;
+}
+
+.nav-item:hover::after {
+    width: 100%;
+}
+
+/* Hiệu ứng lún xuống khi click */
+.nav-item:active {
+    transform: scale(0.95);
+}
+
+.hero-background-fix {
+    position: relative;
+    height: 70vh; 
+    background-image: url('../assets/homepage.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Sửa từ center thành flex-start */
+    /* overflow: hidden;  <-- Nhớ xóa dòng này để cuộn được trang */
+}
+
+.hero-overlay-dark {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.55); 
+    z-index: 1;
+}
+
+.hero-content-container {
+    position: relative;
+    z-index: 2;
+    text-align: left; /* Đảm bảo là left */
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 5% ; /* Tăng padding để đẩy chữ vào sâu hơn một chút nếu muốn */
+}
+
+/* 5. CÁC NÚT BẤM CHÍNH */
+.login-button {
+    padding: 10px 25px;
+    background-color: #2b579a;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.cta-button {
+    padding: 15px 35px;
+    font-size: 18px;
+    background: #ff4d4d;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4);
+}
+
+/* SECTION TIN TỨC */
+.news-section-container {
+    padding: 80px 50px;
+    background-color: #f4f7f6;
+}
+
+.news-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.news-card-item {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.news-card-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.news-image-placeholder {
+    height: 180px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+.news-tag {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background: rgba(255,255,255,0.9);
+    color: #2b579a;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+/* --- HIỆU ỨNG HOVER CHO CÁC Ô THÔNG TIN (DÁN VÀO CUỐI FILE) --- */
+
+.news-card-hover {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+/* Khi di chuột vào: Ô nổi lên và đổ bóng */
+.news-card-hover:hover {
+    transform: translateY(-10px) !important;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.15), 0 10px 10px rgba(0,0,0,0.12) !important;
+    border-color: #2b579a !important; /* Hiện viền xanh */
+}
+
+/* Làm sáng vùng màu phía trên (vùng header-box) khi hover */
+.news-card-hover:hover .news-header-box {
+    filter: brightness(1.1);
+    transition: 0.3s;
+}
+
+/* Đổi màu tiêu đề chữ sang xanh khi hover vào ô */
+.news-card-hover:hover h3 {
+    color: #2b579a !important;
+    transition: 0.3s;
+}
+
+/* Hiệu ứng mượt cho chữ tiêu đề */
+.news-card-hover h3 {
+    transition: color 0.3s ease;
+}

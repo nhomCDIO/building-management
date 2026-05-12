@@ -16,7 +16,7 @@ function kiemTraNgayThangNam(ngay, thang, nam) {
 }
 
 // =====================================================
-// 1. CƯ DÂN GỬI YÊU CẦU BẢO TRÌ
+// 1. CƯ DÂN GỬI YÊU CẦU BẢO TRÌ (Giữ nguyên)
 // =====================================================
 router.post('/gui', async (req, res) => {
     try {
@@ -58,9 +58,7 @@ router.post('/gui', async (req, res) => {
     }
 });
 
-// =====================================================
-// 2. CƯ DÂN XEM LỊCH SỬ THEO PHÒNG + NGÀY
-// =====================================================
+// ... (Các hàm lấy lịch sử giữ nguyên) ...
 router.get('/cu-dan/:ma_phong', async (req, res) => {
     try {
         const { ma_phong } = req.params;
@@ -91,9 +89,6 @@ router.get('/cu-dan/:ma_phong', async (req, res) => {
     }
 });
 
-// =====================================================
-// 3. ADMIN XEM TẤT CẢ YÊU CẦU THEO NGÀY
-// =====================================================
 router.get('/admin', async (req, res) => {
     try {
         const { ngay, thang, nam } = req.query;
@@ -123,51 +118,74 @@ router.get('/admin', async (req, res) => {
 });
 
 // =====================================================
-// 4. ADMIN CẬP NHẬT TRẠNG THÁI
+// 4. ADMIN CẬP NHẬT TRẠNG THÁI & TỰ ĐỘNG ĐĂNG THÔNG BÁO
 // =====================================================
 router.post('/cap-nhat', async (req, res) => {
     try {
-        const { id, trang_thai, ghi_chu_admin } = req.body;
+        // Nhận id_admin từ Frontend gửi lên
+        const { id, trang_thai, ghi_chu_admin, id_admin } = req.body;
 
         const dsTrangThai = ['ChuaThucHien', 'DangThucHien', 'DaHoanThanh'];
+        const tenTrangThai = {
+            'ChuaThucHien': 'Chưa thực hiện',
+            'DangThucHien': 'Đang thực hiện',
+            'DaHoanThanh': 'Đã hoàn thành'
+        };
 
+        // Kiểm tra dữ liệu đầu vào
         if (!id || !dsTrangThai.includes(trang_thai)) {
             return res.status(400).json({ message: 'Dữ liệu cập nhật không hợp lệ!' });
         }
 
+        // 1. Lấy thông tin yêu cầu cũ để lấy mã phòng và tiêu đề gốc
         const [rows] = await db.query(
-            `SELECT id FROM bao_tri WHERE id = ?`,
+            `SELECT id, tieu_de, ma_phong FROM bao_tri WHERE id = ?`,
             [id]
         );
 
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Không tìm thấy yêu cầu bảo trì!' });
         }
+        const yeuCauCu = rows[0];
 
+        // Đoạn này trong bao_tri.js (Backend) phải khớp với cấu trúc bảng thong_bao
         await db.query(
-            `UPDATE bao_tri
-             SET trang_thai = ?,
-                 ghi_chu_admin = ?,
-                 ngay_cap_nhat = NOW()
-             WHERE id = ?`,
-            [trang_thai, ghi_chu_admin?.trim() || null, id]
+            `INSERT INTO thong_bao (id_nguoi_gui, tieu_de, noi_dung, ngay_gui)
+            VALUES (?, ?, ?, NOW())`,
+            [id_admin || 1, tieuDeThongBao, noiDungThongBao]
         );
 
-        const [updatedRows] = await db.query(
-            `SELECT id, ma_phong, tieu_de, mo_ta, trang_thai, ghi_chu_admin, ngay_gui, ngay_cap_nhat
-             FROM bao_tri
-             WHERE id = ?`,
-            [id]
-        );
+        // 3. TỰ ĐỘNG CHÈN VÀO BẢNG thong_bao
+        const tieuDeThongBao = `🛠️ CẬP NHẬT BẢO TRÌ: ${yeuCauCu.ma_phong}`;
+        const noiDungThongBao = `Yêu cầu "${yeuCauCu.tieu_de}" đã được cập nhật:\n- Trạng thái: ${tenTrangThai[trang_thai]}\n- Phản hồi: ${ghi_chu_admin || 'Không có ghi chú'}`;
+
+        // Kiểm tra ID người gửi để tránh lỗi khóa ngoại (Foreign Key)
+        let idNguoiGui = id_admin;
+
+        // Nếu Frontend không gửi id_admin, tìm ID của quản lý đầu tiên trong hệ thống
+        if (!idNguoiGui) {
+            const [adminRow] = await db.query(
+                "SELECT id FROM nguoi_dung WHERE vai_tro = 'QuanLy' LIMIT 1"
+            );
+            idNguoiGui = adminRow[0]?.id;
+        }
+
+        // Chỉ chèn thông báo nếu tìm thấy người gửi hợp lệ
+        if (idNguoiGui) {
+            await db.query(
+                `INSERT INTO thong_bao (id_nguoi_gui, tieu_de, noi_dung, ngay_gui)
+                 VALUES (?, ?, ?, NOW())`,
+                [idNguoiGui, tieuDeThongBao, noiDungThongBao]
+            );
+        }
 
         return res.status(200).json({
-            message: 'Cập nhật bảo trì thành công!',
-            bao_tri: updatedRows[0]
+            message: 'Cập nhật trạng thái và tạo thông báo thành công!'
         });
+
     } catch (error) {
         console.error('Lỗi cập nhật bảo trì:', error);
         return res.status(500).json({ message: 'Lỗi server khi cập nhật bảo trì!' });
     }
 });
-
 module.exports = router;

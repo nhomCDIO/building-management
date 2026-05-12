@@ -7,21 +7,19 @@ const db = require('../cau_hinh/ket_noi_db');
 // =====================================================
 router.get('/', async (req, res) => {
     try {
+        // Sửa đoạn này trong router.get('/', ...) của file thong_bao.js
+        // File thong_bao.js - dòng khoảng 75
         const [rows] = await db.query(`
             SELECT 
                 tb.id,
                 tb.tieu_de,
                 tb.noi_dung,
                 tb.ngay_gui,
-                CASE 
-                    WHEN nd.vai_tro = 'QuanLy' THEN 'ad'
-                    ELSE COALESCE(nd.so_phong, nd.ten_dang_nhap)
-                END AS ten_hien_thi
+                'Ban Quản Lý' AS ten_hien_thi -- Sửa 'ad' thành 'Ban Quản Lý'
             FROM thong_bao tb
-            LEFT JOIN nguoi_dung nd
-                ON tb.id_nguoi_gui = nd.id
-            ORDER BY tb.ngay_gui DESC, tb.id DESC
-        `);
+            WHERE tb.id = ?
+            LIMIT 1
+        `, [result.insertId]);
 
         return res.status(200).json(rows);
     } catch (error) {
@@ -65,13 +63,14 @@ router.post('/gui', async (req, res) => {
             [id_nguoi_gui, tieu_de.trim(), noi_dung.trim()]
         );
 
+        // File thong_bao.js - dòng cuối của router.post('/gui')
         const [rows] = await db.query(`
             SELECT 
                 tb.id,
                 tb.tieu_de,
                 tb.noi_dung,
                 tb.ngay_gui,
-                'ad' AS ten_hien_thi
+                'Ban Quản Lý' AS ten_hien_thi -- Thay 'ad' bằng 'Ban Quản Lý'
             FROM thong_bao tb
             WHERE tb.id = ?
             LIMIT 1

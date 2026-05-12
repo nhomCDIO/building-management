@@ -1,14 +1,17 @@
-/* src/index.css */
+/* src/index.css - BẢN ĐÃ SỬA */
 body {
     margin: 0;
-    /* Dùng đường dẫn / thay vì ./ nếu ảnh ở public, hoặc giữ nguyên nếu ở src/assets */
-    background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('./assets/nen_nen.jpg');
+    
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden; /* Ngăn scroll toàn trang */
+    
+    /* SỬA TẠI ĐÂY */
+    min-height: 100vh;  /* Cho phép trang dài hơn màn hình */
+    width: 100%;        /* Dùng 100% để tránh lỗi thanh cuộn ngang của 100vw */
+    overflow-x: hidden; /* Chỉ chặn cuộn ngang (nếu có lỗi giao diện), cho phép cuộn dọc tự nhiên */
+    overflow-y: auto;   /* Đảm bảo cho phép cuộn xuống dưới */
+    
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -70,4 +73,26 @@ body {
 .room-circle-small.selected {
     background-color: #a04e4e; 
     color: white;
+}
+/* Hiệu ứng Nút Đăng xuất */
+.glass-logout-btn {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px); /* Hiệu ứng mờ nền glass */
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.3s ease; /* Chuyển động mượt mà cho tất cả thay đổi */
+}
+
+/* Hiệu ứng khi di chuột qua (Hover) */
+.glass-logout-btn:hover {
+    background: rgba(255, 255, 255, 0.35); /* Mờ kính hơn */
+    backdrop-filter: blur(8px); /* Nền mờ hơn */
+    transform: scale(1.05); /* Phóng to nhẹ 5% */
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3); /* Bóng đổ sâu hơn */
+}
+
+/* Hiệu ứng khi nhấn (Active) */
+.glass-logout-btn:active {
+    transform: scale(0.98); /* Nhấn xuống nhẹ */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Bóng đổ nhỏ lại */
+    background: rgba(255, 255, 255, 0.25); /* Trở lại màu cơ bản hơn */
 }

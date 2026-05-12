@@ -28,7 +28,7 @@ export default function ThongBaoCuDan() {
         return () => clearInterval(interval);
     }, []);
 
-    return (
+   return (
         <div style={containerStyle}>
             <div style={headerStyle}>
                 <h2 style={titleStyle}>📢 THÔNG BÁO TÒA NHÀ</h2>
@@ -44,29 +44,48 @@ export default function ThongBaoCuDan() {
                     <div style={emptyStyle}>Hiện tại chưa có thông báo nào.</div>
                 ) : (
                     <div style={listStyle}>
-                        {dsThongBao.map((item) => (
-                            <div key={item.id} style={itemStyle}>
-                                <div style={itemTopStyle}>
-                                    <div style={itemTitleStyle}>{item.tieu_de}</div>
-                                    <div style={itemTimeStyle}>
-                                        {new Date(item.ngay_gui).toLocaleString('vi-VN')}
+                        {dsThongBao.map((item) => {
+                            // --- PHẦN BỔ SUNG MỚI: Kiểm tra xem có phải thông báo bảo trì không ---
+                            const laBaoTri = item.tieu_de.includes('🛠️') || item.tieu_de.toLowerCase().includes('bảo trì');
+
+                            return (
+                                <div 
+                                    key={item.id} 
+                                    style={{
+                                        ...itemStyle,
+                                        // Highlight thông báo bảo trì: viền vàng và nền vàng nhạt
+                                        borderLeft: laBaoTri ? '6px solid #fbc02d' : 'none',
+                                        backgroundColor: laBaoTri ? '#fffef0' : 'rgba(255,255,255,0.92)'
+                                    }}
+                                >
+                                    <div style={itemTopStyle}>
+                                        <div style={{
+                                            ...itemTitleStyle,
+                                            // Đổi màu chữ tiêu đề nếu là bảo trì cho đồng bộ
+                                            color: laBaoTri ? '#d4a017' : '#8b5e5e'
+                                        }}>
+                                            {item.tieu_de}
+                                        </div>
+                                        <div style={itemTimeStyle}>
+                                            {new Date(item.ngay_gui).toLocaleString('vi-VN')}
+                                        </div>
+                                    </div>
+
+                                    <div style={itemSenderStyle}>
+                                        Người gửi: {item.ten_hien_thi || 'ad'}
+                                    </div>
+
+                                    <div style={itemContentStyle}>
+                                        {item.noi_dung}
                                     </div>
                                 </div>
-
-                                <div style={itemSenderStyle}>
-                                    Người gửi: {item.ten_hien_thi || 'ad'}
-                                </div>
-
-                                <div style={itemContentStyle}>
-                                    {item.noi_dung}
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
         </div>
-    );
+    );  
 }
 
 const containerStyle = {

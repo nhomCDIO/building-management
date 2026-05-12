@@ -1,9 +1,17 @@
 import React from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import logoBgImg from '../../assets/nen_ten_web.jpg';
 import mainBgImg from '../../assets/nen_nen.jpg';
 
 const TrangChuQuanLy = () => {
+    const navigate = useNavigate(); // 2. Khai báo navigate
+
+    // 2. Thêm hàm xử lý đăng xuất
+    const handleLogout = () => {
+        localStorage.clear();
+        sessionStorage.clear();
+        navigate('/auth', { replace: true });
+    };
     const menuItems = [
         { name: 'Quản lý thông báo', path: 'thong-bao' },
         { name: 'Quản lý cư dân', path: 'cu-dan' },
@@ -26,6 +34,7 @@ const TrangChuQuanLy = () => {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 boxSizing: 'border-box',
+                position: 'relative'
             }}
         >
             <aside style={styles.sidebar} className="glass-sidebar">
@@ -58,10 +67,10 @@ const TrangChuQuanLy = () => {
             <div style={styles.rightContent}>
                 <header style={styles.headerRow}>
                     <div className="glass-sidebar" style={styles.titleBox}>
-                        Hệ thống quản lý toà nhà
+                        HỆ THỐNG QUẢN LÝ TÒA NHÀ 
                     </div>
                     <div className="glass-sidebar" style={styles.adminBox}>
-                        admin
+                        <span>admin</span>
                     </div>
                 </header>
 
@@ -69,6 +78,14 @@ const TrangChuQuanLy = () => {
                     <Outlet />
                 </main>
             </div>
+            {/* Nút Đăng xuất nằm cố định ở góc dưới bên phải */}
+            <button 
+                onClick={handleLogout} 
+                style={styles.fixedLogoutBtn}
+                className="glass-logout-btn" // Sử dụng CSS Class
+            >
+                Đăng xuất
+            </button>
         </div>
     );
 };
@@ -104,6 +121,8 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
+        overflowY: 'auto', // Thêm cuộn cho menu nếu danh sách quá dài
+        paddingRight: '5px',
     },
     navBtn: {
         padding: '15px 20px',
@@ -113,6 +132,16 @@ const styles = {
         fontSize: '14px',
         textAlign: 'center',
         transition: '0.3s',
+    },
+    logoutBtn: {
+        marginTop: '20px',
+        padding: '12px',
+        borderRadius: '20px',
+        border: 'none',
+        background: 'rgba(255,255,255,0.2)',
+        color: '#fff',
+        cursor: 'pointer',
+        fontWeight: 'bold',
     },
     rightContent: {
         flex: 1,
@@ -146,6 +175,23 @@ const styles = {
         flex: 1,
         display: 'flex',
         minHeight: 0,
+    },
+    // Style mới cho nút Đăng xuất cố định
+    fixedLogoutBtn: {
+        position: 'fixed',
+        bottom: '30px',
+        right: '30px',
+        padding: '12px 25px',
+        borderRadius: '20px',
+        border: '1px solid rgba(255,255,255,0.3)',
+        background: 'rgba(255,255,255,0.2)', // Giống i chang bên cư dân
+        color: '#fff',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: '14px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+        zIndex: 1000, // Đảm bảo luôn nằm trên các thành phần khác
+        transition: '0.3s',
     },
 };
 

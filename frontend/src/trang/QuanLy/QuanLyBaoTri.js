@@ -44,22 +44,28 @@ export default function QuanLyBaoTri() {
     };
 
     const handleCapNhat = async () => {
-        if (!itemDangChon) return;
+    try {
+        // Lấy thông tin user (Admin) đang đăng nhập
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
 
-        try {
-            const data = await apiCapNhatBaoTri({
-                id: itemDangChon.id,
-                trang_thai: form.trang_thai,
-                ghi_chu_admin: form.ghi_chu_admin
-            });
+        // Chuẩn bị dữ liệu gửi đi (phải có id_admin để tạo thông báo)
+        const duLieuGui = {
+            trang_thai: form.trang_thai,
+            ghi_chu_admin: form.ghi_chu_admin,
+            id_admin: user.id // Cực kỳ quan trọng
+        };
 
-            alert(data.message);
-            fetchDsBaoTri();
-        } catch (error) {
-            console.error('Lỗi cập nhật bảo trì:', error);
-            alert(error.response?.data?.message || 'Cập nhật thất bại!');
-        }
-    };
+        // Gọi API với ID của yêu cầu bảo trì và dữ liệu mới
+        await apiCapNhatBaoTri(itemDangChon.id, duLieuGui);
+        
+        alert('Cập nhật thành công! Hệ thống đã gửi thông báo tới cư dân.');
+        setItemDangChon(null);
+        fetchDsBaoTri(); // Tải lại danh sách
+    } catch (error) {
+        console.error("Lỗi cập nhật:", error);
+        alert(error.response?.data?.message || 'Lỗi 404: Không tìm thấy địa chỉ API!');
+    }
+};
 
     const hienThiTrangThai = (trangThai) => {
         if (trangThai === 'ChuaThucHien') return 'Chưa thực hiện';

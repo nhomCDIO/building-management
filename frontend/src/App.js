@@ -1,6 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ScrollToTop from './ScrollToTop';
+// --- TRANG CHỦ GIỚI THIỆU ---
+import TrangChu from './trang/TrangChu'; // Đảm bảo bạn đã tạo file này trong src/trang/
 import DangNhap from './trang/DangNhap';
+import LichCupDien from './trang/LichCupDien';
 
 // --- PHÂN HỆ QUẢN LÝ ---
 import TrangChuQuanLy from './trang/QuanLy/TrangChuQuanLy';
@@ -27,8 +31,15 @@ import NhanTinCuDan from './trang/CuDan/NhanTinCuDan';
 function App() {
     return (
         <Router>
+            <ScrollToTop /> {/* Thêm vào đây */}
             <Routes>
-                <Route path="/" element={<Navigate to="/auth" replace />} />
+                {/* MỚI: Vào trang web sẽ thấy Trang Chủ giới thiệu */}
+                <Route path="/" element={<TrangChu />} />
+
+                {/* THÊM DÒNG NÀY: Đường dẫn cho trang thông báo lịch cúp điện */}
+                <Route path="/lich-cup-dien" element={<LichCupDien />} />
+
+                {/* Giữ nguyên trang đăng nhập tại đường dẫn /auth */}
                 <Route path="/auth" element={<DangNhap />} />
 
                 <Route path="/dashboard-quan-ly" element={<TrangChuQuanLy />}>

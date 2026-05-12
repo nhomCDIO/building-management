@@ -121,9 +121,8 @@ export const apiLayBaoTriAdmin = async (ngay, thang, nam) => {
   return res.data;
 };
 
-export const apiCapNhatBaoTri = async (data) => {
-  const res = await axiosInstance.post('/bao-tri/cap-nhat', data);
-  return res.data;
+export const apiCapNhatBaoTri = (id, data) => {
+    return axios.post(`/api/bao-tri/cap-nhat`, { id, ...data });
 };
 
 //nhắn tin
