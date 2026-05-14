@@ -122,7 +122,7 @@ router.get('/admin', async (req, res) => {
 // =====================================================
 router.post('/cap-nhat', async (req, res) => {
     try {
-        // Nhận id_admin từ Frontend gửi lên
+        // 1. Nhận dữ liệu từ Frontend
         const { id, trang_thai, ghi_chu_admin, id_admin } = req.body;
 
         const dsTrangThai = ['ChuaThucHien', 'DangThucHien', 'DaHoanThanh'];
@@ -137,48 +137,41 @@ router.post('/cap-nhat', async (req, res) => {
             return res.status(400).json({ message: 'Dữ liệu cập nhật không hợp lệ!' });
         }
 
-        // 1. Lấy thông tin yêu cầu cũ để lấy mã phòng và tiêu đề gốc
+        // 2. Cập nhật trạng thái yêu cầu bảo trì trong bảng 'bao_tri'
+        const [updateResult] = await db.query(
+            `UPDATE bao_tri 
+             SET trang_thai = ?, ghi_chu_admin = ?, ngay_cap_nhat = NOW() 
+             WHERE id = ?`,
+            [trang_thai, ghi_chu_admin || '', id]
+        );
+
+        if (updateResult.affectedRows === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy yêu cầu bảo trì để cập nhật!' });
+        }
+
+        // 3. Lấy thông tin yêu cầu để làm nội dung thông báo
         const [rows] = await db.query(
-            `SELECT id, tieu_de, ma_phong FROM bao_tri WHERE id = ?`,
+            `SELECT tieu_de, ma_phong FROM bao_tri WHERE id = ?`,
             [id]
         );
-
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Không tìm thấy yêu cầu bảo trì!' });
-        }
         const yeuCauCu = rows[0];
 
-        // Đoạn này trong bao_tri.js (Backend) phải khớp với cấu trúc bảng thong_bao
-        await db.query(
-            `INSERT INTO thong_bao (id_nguoi_gui, tieu_de, noi_dung, ngay_gui)
-            VALUES (?, ?, ?, NOW())`,
-            [id_admin || 1, tieuDeThongBao, noiDungThongBao]
-        );
+        // 4. Xử lý idNguoiGui (Lấy từ id_admin của frontend hoặc mặc định là 1)
+        // Đây là nơi bạn sửa lỗi ReferenceError
+        const idNguoiGui = id_admin || 1; 
 
-        // 3. TỰ ĐỘNG CHÈN VÀO BẢNG thong_bao
+        // 5. Tạo nội dung và chèn vào bảng 'thong_bao'
         const tieuDeThongBao = `🛠️ CẬP NHẬT BẢO TRÌ: ${yeuCauCu.ma_phong}`;
         const noiDungThongBao = `Yêu cầu "${yeuCauCu.tieu_de}" đã được cập nhật:\n- Trạng thái: ${tenTrangThai[trang_thai]}\n- Phản hồi: ${ghi_chu_admin || 'Không có ghi chú'}`;
 
-        // Kiểm tra ID người gửi để tránh lỗi khóa ngoại (Foreign Key)
-        let idNguoiGui = id_admin;
+        // CẬP NHẬT LỆNH INSERT Ở ĐÂY:
+        await db.query(
+            `INSERT INTO thong_bao (id_nguoi_gui, tieu_de, noi_dung, ma_phong, ngay_gui)
+            VALUES (?, ?, ?, ?, NOW())`,
+            [idNguoiGui, tieuDeThongBao, noiDungThongBao, yeuCauCu.ma_phong] // Thêm yeuCauCu.ma_phong vào mảng này
+        );
 
-        // Nếu Frontend không gửi id_admin, tìm ID của quản lý đầu tiên trong hệ thống
-        if (!idNguoiGui) {
-            const [adminRow] = await db.query(
-                "SELECT id FROM nguoi_dung WHERE vai_tro = 'QuanLy' LIMIT 1"
-            );
-            idNguoiGui = adminRow[0]?.id;
-        }
-
-        // Chỉ chèn thông báo nếu tìm thấy người gửi hợp lệ
-        if (idNguoiGui) {
-            await db.query(
-                `INSERT INTO thong_bao (id_nguoi_gui, tieu_de, noi_dung, ngay_gui)
-                 VALUES (?, ?, ?, NOW())`,
-                [idNguoiGui, tieuDeThongBao, noiDungThongBao]
-            );
-        }
-
+        // 6. Trả về kết quả thành công
         return res.status(200).json({
             message: 'Cập nhật trạng thái và tạo thông báo thành công!'
         });
@@ -187,5 +180,15 @@ router.post('/cap-nhat', async (req, res) => {
         console.error('Lỗi cập nhật bảo trì:', error);
         return res.status(500).json({ message: 'Lỗi server khi cập nhật bảo trì!' });
     }
-});
+    const [rows] = await db.query(
+        `SELECT tieu_de, ma_phong FROM bao_tri WHERE id = ?`,
+        [id]
+    );
+
+    // Thêm đoạn này để tránh lỗi nếu id sai
+    if (rows.length === 0) {
+        return res.status(404).json({ message: 'Không tìm thấy yêu cầu bảo trì với ID này!' });
+    }
+    const yeuCauCu = rows[0];
+    });
 module.exports = router;

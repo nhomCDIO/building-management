@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:5000/api'
+  baseURL: 'http://localhost:5000/api'
 });
 
 export const apiDangNhap = async (data) => {
@@ -121,8 +121,10 @@ export const apiLayBaoTriAdmin = async (ngay, thang, nam) => {
   return res.data;
 };
 
-export const apiCapNhatBaoTri = (id, data) => {
-    return axios.post(`/api/bao-tri/cap-nhat`, { id, ...data });
+export const apiCapNhatBaoTri = async (id, data) => {
+    // Sử dụng axiosInstance và bỏ /api/ ở đầu vì baseURL đã có rồi
+    const res = await axiosInstance.post('/bao-tri/cap-nhat', { id, ...data });
+    return res.data;
 };
 
 //nhắn tin

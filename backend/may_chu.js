@@ -3,12 +3,7 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type']
-}));
-
+app.use(cors()); // Cho phép tất cả các nguồn truy cập
 app.use(express.json());
 
 // Route tài khoản
@@ -35,10 +30,6 @@ app.use('/api/bai-do-xe', routeBaiDoXe);
 const routeHoaDon = require('./src/chuc_nang/hoa_don');
 app.use('/api/hoa-don', routeHoaDon);
 
-// bảo trì
-const baoTriRouter = require('./routes/bao_tri'); // Đường dẫn đến file bao_tri.js của bạn
-app.use('/api/bao-tri', baoTriRouter);
-
 // nhắn tin
 const routeNhanTin = require('./src/chuc_nang/nhan_tin');
 app.use('/api/nhan-tin', routeNhanTin);
@@ -52,7 +43,11 @@ app.get('/', (req, res) => {
     res.send('Backend A&RMS đang chạy!');
 });
 
+// Tìm đến cuối file và sửa dòng import baoTriRouter
+const baoTriRouter = require('./src/chuc_nang/bao_tri'); 
+app.use('/api/bao-tri', baoTriRouter);
+
 const PORT = 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server chạy tại: http://localhost:${PORT}`);
+    console.log(`Server đang chạy tại http://localhost:${PORT}`);
 });
